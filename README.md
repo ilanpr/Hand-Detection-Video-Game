@@ -81,8 +81,6 @@ Winsound - Pemutaran backsound game (Khusus Windows).
 
 # 📂 Struktur Folder
 Pastikan file-file aset (gambar, video, font, audio) Anda berada satu direktori dengan program utama (ProjectPCV.py):
-
-Plaintext
 ProjectPCV/
 │
 ├── ProjectPCV.py
@@ -108,7 +106,6 @@ ProjectPCV/
 ├── backsound.wav
 ├── gameover_bgm.wav
 └── aAsianNinja.ttf
-
 # 🚀 Cara Menjalankan Program
 ### 1. Install Dependencies
 Buka terminal atau command prompt Anda, lalu instal library Python yang dibutuhkan:
