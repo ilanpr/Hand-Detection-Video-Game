@@ -204,7 +204,7 @@ screenshots/gameover.png
 Link Video:
 
 ```text
-https://youtu.be/ISI_LINK_VIDEO_KALIAN
+https://youtu.be/
 ```
 
 ---
