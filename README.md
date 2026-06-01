@@ -178,7 +178,8 @@ python ProjectPCV.py
 Gambar:
 
 ```text
-screenshots/menu.png
+<img width="807" height="644" alt="image" src="https://github.com/user-attachments/assets/9bd149df-4ff0-4bc0-8776-ddebe009b7f3" />
+
 ```
 
 ### Gameplay
