@@ -80,16 +80,12 @@ Pillow (PIL) - Digunakan untuk me-render teks secara custom (mendukung font .ttf
 Winsound - Pemutaran backsound game (Khusus Windows).
 
 # 📂 Struktur Folder
-Pastikan file-file aset (gambar, video, font, audio) berada pada satu direktori dengan program utama (ProjectPCV.py):
+Pastikan file-file aset (gambar, video, font, audio) berada pada satu direktori dengan program utama (Sword Slash Hunter.py):
 
 ```
 ProjectPCV/
 │
 ├── ProjectPCV.py
-│
-├── screenshots/
-│   ├── gameplay.png
-│   └── gameover.png
 │
 ├── title_banner.png
 ├── btn_lvl1.png
