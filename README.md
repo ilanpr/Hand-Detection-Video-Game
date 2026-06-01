@@ -80,7 +80,9 @@ Pillow (PIL) - Digunakan untuk me-render teks secara custom (mendukung font .ttf
 Winsound - Pemutaran backsound game (Khusus Windows).
 
 # 📂 Struktur Folder
-Pastikan file-file aset (gambar, video, font, audio) Anda berada satu direktori dengan program utama (ProjectPCV.py):
+Pastikan file-file aset (gambar, video, font, audio) berada pada satu direktori dengan program utama (ProjectPCV.py):
+
+```
 ProjectPCV/
 │
 ├── ProjectPCV.py
@@ -106,6 +108,7 @@ ProjectPCV/
 ├── backsound.wav
 ├── gameover_bgm.wav
 └── aAsianNinja.ttf
+```
 # 🚀 Cara Menjalankan Program
 ### 1. Install Dependencies
 Buka terminal atau command prompt Anda, lalu instal library Python yang dibutuhkan:
