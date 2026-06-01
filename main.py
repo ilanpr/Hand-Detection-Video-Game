@@ -22,7 +22,7 @@ enemy_anim_counter = 0
 
 BORDER_PADDING = 10
 
-# --- LOAD AUDIO ---
+# --- AUDIO ---
 if platform.system() == "Windows":
     import winsound
     audio_enabled = True
@@ -37,7 +37,7 @@ def stop_audio():
     if audio_enabled:
         winsound.PlaySound(None, winsound.SND_PURGE)
 
-# --- LOAD SEMUA GAMBAR ---
+# --- LOAD GAMBAR ---
 img_title = cv2.resize(cv2.imread('title_banner.png', cv2.IMREAD_UNCHANGED), (title_w, title_h))
 img_btn1 = cv2.resize(cv2.imread('btn_lvl1.png', cv2.IMREAD_UNCHANGED), (btn_w, btn_h))
 img_btn2 = cv2.resize(cv2.imread('btn_lvl2.png', cv2.IMREAD_UNCHANGED), (btn_w, btn_h))
@@ -50,7 +50,7 @@ img_gameover = cv2.resize(cv2.imread('gameover_bg.jpg'), (WIDTH, HEIGHT))
 img_sword = cv2.resize(cv2.imread('sword.png', cv2.IMREAD_UNCHANGED), (sword_w, sword_h))
 img_heart = cv2.resize(cv2.imread('heart.png', cv2.IMREAD_UNCHANGED), (heart_size, heart_size))
 
-# --- LOAD ENEMY SPRITE SHEET ---
+# --- LOAD ENEMY SPRITE ---
 enemy_frames = []
 sheet = cv2.imread('enemy.png', cv2.IMREAD_UNCHANGED)
 frame_width = sheet.shape[1] // 4
@@ -68,7 +68,7 @@ img_health_bg = cv2.imread('health_bg.png', cv2.IMREAD_UNCHANGED)
 menu_cap = cv2.VideoCapture('menu_vid.mp4') 
 
 # ==========================================
-# FUNGSI-FUNGSI PENDUKUNG
+# FUNCTION 
 # ==========================================
 
 def draw_custom_text(img, text, font_path, font_size, color_bgr, pos_x=0, pos_y=0, center_x=False, center_y=False):
@@ -139,7 +139,7 @@ def overlay_transparent(bg_img, fg_img, x, y):
 # ==========================================
 score = 0
 health = 3
-garis_batas = int(HEIGHT * 0.7) 
+garis_batas = int(HEIGHT * 0.6) 
 game_state = "MENU"
 current_speed = 8
 enemy = [random.randint(100, WIDTH-100), 0, current_speed]
@@ -205,6 +205,8 @@ play_bgm()
 # ==========================================
 # LOOP UTAMA
 # ==========================================
+popup_timer = 0
+last_hit_text = ""
 while running:
     ret, frame = cap.read()
     if not ret: break
@@ -230,7 +232,7 @@ while running:
 
     elif game_state == "PLAYING":
         focus_frame = frame
-        draw_dashed_line(focus_frame, garis_batas)
+        cv2.line(focus_frame, (0, garis_batas), (WIDTH, garis_batas), (0, 0, 255), 2)
         cv2.imshow("Bareface (Kamera)", focus_frame)
         display_f = img_playing_bg.copy()
         blurred = cv2.GaussianBlur(focus_frame, (11, 11), 0)
@@ -295,11 +297,17 @@ while running:
         if palm_center and sword_rect:
             s_p1, s_p2 = sword_rect
             normal_hit = (s_p1[0] < ex < s_p2[0] and s_p1[1] < ey < s_p2[1])
-            slash_hit = False
-            if is_slashing and prev_tip is not None:
-                slash_hit = (abs(ex - current_tip[0]) < 80 and abs(ey - current_tip[1]) < 80)
-            if normal_hit or slash_hit:
+            slash_hit = (is_slashing and prev_tip is not None and abs(ex - current_tip[0]) < 80 and abs(ey - current_tip[1]) < 80)
+
+            if slash_hit:
+                score += 3
+                popup_timer = 15 # Durasi notifikasi
+                last_hit_text = "+3 SLASH!"
+                enemy = [random.randint(100, WIDTH-100), 0, current_speed + random.randint(-1,2)]
+            elif normal_hit:
                 score += 1
+                popup_timer = 15
+                last_hit_text = "+1 HIT!"
                 enemy = [random.randint(100, WIDTH-100), 0, current_speed + random.randint(-1,2)]
         
         if enemy[1] > HEIGHT:
@@ -315,9 +323,14 @@ while running:
 
         if slash_timer > 0:
             alpha = slash_timer / 8.0
-            display_f = draw_fading_text(display_f, "SLASH!", NAMA_FILE_FONT, 90, (255, 255, 0), alpha, center_x=True, pos_y=180)
-            display_f = draw_fading_text(display_f, "SLASH!", NAMA_FILE_FONT, 80, (255, 255, 255), alpha, center_x=True, pos_y=182)
+            display_f = draw_fading_text(display_f, "SLASH!", NAMA_FILE_FONT, 120, (255, 255, 0), alpha, center_x=True, pos_y=180)
+            display_f = draw_fading_text(display_f, "SLASH!", NAMA_FILE_FONT, 115, (255, 255, 255), alpha, center_x=True, pos_y=182)
             slash_timer -= 1
+            # Notifikasi Skor Berjalan
+        if popup_timer > 0:
+            pos_y_notif = 120 - (15 - popup_timer) * 2
+            display_f = draw_fading_text(display_f, last_hit_text, NAMA_FILE_FONT, 50, (0, 255, 0), popup_timer/15.0, center_x=True, pos_y=pos_y_notif)
+            popup_timer -= 1
         else:
             is_slashing = False
 
@@ -357,8 +370,8 @@ while running:
 
     elif game_state == "GAMEOVER":
         go_frame = img_gameover.copy()
-        go_frame = draw_custom_text(go_frame, "GAME OVER", NAMA_FILE_FONT, 60, (0, 0, 255), center_x=True, pos_y=HEIGHT//2 - 80)
-        go_frame = draw_custom_text(go_frame, f"SKOR AKHIR: {score}", NAMA_FILE_FONT, 30, (100, 255, 255), center_x=True, pos_y=HEIGHT//2 -10)
+        go_frame = draw_custom_text(go_frame, "GAME OVER", NAMA_FILE_FONT, 70, (0, 0, 255), center_x=True, pos_y=HEIGHT//2 - 80)
+        go_frame = draw_custom_text(go_frame, f"SKOR AKHIR: {score}", NAMA_FILE_FONT, 30, (255, 255, 255), center_x=True, pos_y=HEIGHT//2 -10)
         cv2.imshow("Game PCV", go_frame)
         if key == ord('q'): running = False
 
