@@ -1,212 +1,142 @@
 # Sword Slash Hunter
-# Identitas Pengembang
 
-Nama: Ilan Hawwari Prasojo
-NRP: 5025241039
+**Sword Slash Hunter** adalah game berbasis *Computer Vision* yang dikembangkan menggunakan Python dan OpenCV. Pemain menggunakan gerakan tangan yang terdeteksi oleh webcam sebagai pengendali pedang untuk menghancurkan musuh yang jatuh dari atas layar. 
 
-## Deskripsi Proyek
-
-Sword Slash Hunter adalah game berbasis Computer Vision yang dikembangkan menggunakan Python dan OpenCV. Pemain menggunakan gerakan tangan yang terdeteksi oleh webcam sebagai pengendali pedang untuk menghancurkan musuh yang jatuh dari atas layar.
-
-Game ini memanfaatkan teknik deteksi warna kulit (skin detection) pada ruang warna HSV untuk melacak posisi tangan pemain secara real-time. Posisi tangan kemudian digunakan untuk mengendalikan pedang virtual yang dapat digunakan untuk menyerang musuh.
+Game ini memanfaatkan teknik deteksi warna kulit (*skin detection*) pada ruang warna HSV untuk melacak posisi tangan pemain secara *real-time*. Posisi tangan kemudian digunakan untuk mengendalikan pedang virtual yang dapat digunakan untuk menebas musuh.
 
 ---
+
+## Identitas Pengembang
+- **Nama:** Ilan Hawwari Prasojo
+- **NRP:** 5025241039
+
+---
+
+## 📸 Cuplikan Permainan (Screenshots) & Video
+
+### Menu Utama
+![Main Menu](https://github.com/user-attachments/assets/9bd149df-4ff0-4bc0-8776-ddebe009b7f3)
+
+### Gameplay
+![Gameplay](screenshots/gameplay.png)
+
+### Game Over
+![Game Over](screenshots/gameover.png)
+
+### Video Gameplay Keseluruhan
+[![Video Demonstrasi Game](https://img.youtube.com/vi/ID_VIDEO_YOUTUBE/maxresdefault.jpg)](https://youtu.be/ID_VIDEO_YOUTUBE)
 
 ## Fitur Utama
-
-### 1. Menu Interaktif
-
-* Level 1 (Easy)
-* Level 2 (Medium)
-* Level 3 (Hard)
-* Exit Game
-
-### 2. Kontrol Menggunakan Tangan
-
-* Menggunakan webcam sebagai input utama.
-* Deteksi tangan dilakukan menggunakan segmentasi warna kulit.
-* Posisi telapak tangan digunakan untuk menentukan posisi pedang.
-
-### 3. Sistem Pedang
-
-* Pedang mengikuti posisi tangan pemain.
-* Efek tebasan muncul saat tangan bergerak cepat.
-* Collision detection antara pedang dan musuh.
-
-### 4. Sistem Musuh
-
-* Musuh muncul dari bagian atas layar.
-* Kecepatan musuh bergantung pada level yang dipilih.
-* Menggunakan sprite PNG transparan dengan animasi frame.
-
-### 5. Sistem Skor
-
-* Skor bertambah setiap kali musuh berhasil dihancurkan.
-
-### 6. Sistem Nyawa
-
-* Pemain memiliki 3 nyawa.
-* Nyawa berkurang jika musuh berhasil melewati layar.
-* Game Over ketika nyawa habis.
-
-### 7. Audio
-
-* Background music diputar selama permainan berlangsung.
-
----
-
-## Teknologi yang Digunakan
-
-* Python 3.x
-* OpenCV
-* NumPy
-* Pillow (PIL)
-* Winsound (Windows)
+1. **Menu Interaktif:** Terdapat tiga tingkat kesulitan (Level 1, Level 2, Level 3) dan tombol keluar. Kecepatan jatuh musuh bervariasi bergantung pada level yang dipilih.
+2. **Kontrol Berbasis Visi (Tangan):** Menggunakan webcam sebagai input utama. Deteksi tangan dilakukan menggunakan segmentasi warna kulit. Posisi telapak tangan menjadi acuan utama pergerakan pedang.
+3. **Sistem Pedang & Tebasan (Slash):** Pedang secara presisi mengikuti pergerakan tangan pemain. Terdapat fitur deteksi tebasan cepat (*slash*) yang memberikan efek teks dan poin lebih besar (+3 poin) dibandingkan serangan biasa (+1 poin).
+4. **Sistem Musuh Beranimasi:** Musuh direpresentasikan dengan *sprite sheet* PNG transparan yang beranimasi (berpindah *frame*) saat jatuh dari atas layar.
+5. **Sistem Skor & Nyawa (Health):** Pemain memiliki 3 nyawa. Nyawa akan berkurang jika musuh berhasil menyentuh garis batas merah di bawah layar.
+6. **Audio Pendukung:** *Background music* diputar secara dinamis selama di menu, gameplay, dan saat game over (Bekerja secara native untuk sistem operasi Windows).
 
 ---
 
 ## Konsep Computer Vision yang Digunakan
 
-### 1. Skin Detection
-
-Deteksi tangan dilakukan menggunakan ruang warna HSV.
+### 1. Skin Detection (HSV Color Space)
+Deteksi kulit/tangan dilakukan dengan melakukan thresholding pada ruang warna HSV untuk mengatasi bayangan dan pencahayaan. Rentang warna yang digunakan pada program:
+Code output
+File README.md has been generated.
 
 ```python
-lower_skin = np.array([0, 40, 60])
-upper_skin = np.array([18, 170, 255])
+lower_skin = np.array([0, 20, 50], dtype=np.uint8) 
+upper_skin = np.array([25, 200, 255], dtype=np.uint8)
+
 ```
+### 2. Morphological Operations
+Digunakan untuk mengurangi noise dan menyempurnakan bentuk mask hasil deteksi:
 
-### 2. Morphological Operation
+Erosion (1 iterasi) untuk menghilangkan titik-titik noise (kotoran) di latar belakang.
 
-Menggunakan:
-
-* Erosion
-* Dilation
-
-untuk mengurangi noise pada hasil segmentasi kulit.
+Dilation (3 iterasi) untuk menebalkan kembali mask area tangan yang terdeteksi sehingga lebih solid.
 
 ### 3. Contour Detection
-
-Kontur terbesar dianggap sebagai objek tangan pemain.
+Program (cv2.findContours) mencari garis luar dari mask tangan dan mengambil area kontur terbesar (dengan batas minimum 3000 piksel) sebagai objek tangan pemain.
 
 ### 4. Distance Transform
-
-Digunakan untuk mencari pusat telapak tangan yang nantinya menjadi acuan posisi pedang.
+Digunakan cv2.distanceTransform untuk mencari titik pusat tebal (titik paling tengah) dari telapak tangan pemain. Titik ini akan diolah lebih lanjut untuk menjadi poros acuan koordinat jatuhnya pangkal pedang.
 
 ### 5. Collision Detection
+Pengecekan tabrakan dilakukan dengan dua cara:
 
-Pengecekan tabrakan dilakukan dengan membandingkan posisi musuh terhadap bounding box pedang.
+Membandingkan kordinat musuh terhadap bounding box pedang untuk mendeteksi serangan biasa.
 
----
+Mengkalkulasi jarak (Euclidean Distance) dari ujung pedang sebelumnya dan ujung pedang saat ini untuk mendeteksi pergerakan super cepat (Slash Hit).
 
-## Struktur Folder
+# Teknologi yang Digunakan
+Python 3.
 
-```text
+OpenCV (cv2) - Pemrosesan gambar, kamera, dan computer vision.
+
+NumPy - Operasi matriks dan array numerik untuk thresholding.
+
+Pillow (PIL) - Digunakan untuk me-render teks secara custom (mendukung font .ttf khusus).
+
+Winsound - Pemutaran backsound game (Khusus Windows).
+
+# 📂 Struktur Folder
+Pastikan file-file aset (gambar, video, font, audio) Anda berada satu direktori dengan program utama (ProjectPCV.py):
+
+Plaintext
 ProjectPCV/
 │
 ├── ProjectPCV.py
 │
-├── Assets/
-│   ├── title_banner.png
-│   ├── btn_lvl1.png
-│   ├── btn_lvl2.png
-│   ├── btn_lvl3.png
-│   ├── btn_exit.png
-│   ├── sword.png
-│   ├── enemy.png
-│   ├── heart.png
-│   ├── score_bg.png
-│   ├── health_bg.png
-│   ├── playing_bg.jpg
-│   ├── gameover_bg.jpg
-│   ├── menu_vid.mp4
-│   ├── backsound.wav
-│   └── aAsianNinja.ttf
-│
 ├── screenshots/
-│   ├── menu.png
 │   ├── gameplay.png
 │   └── gameover.png
 │
-└── README.md
-```
+├── title_banner.png
+├── btn_lvl1.png
+├── btn_lvl2.png
+├── btn_lvl3.png
+├── btn_exit.png
+├── sword.png
+├── enemy.png
+├── heart.png
+├── score_bg.png
+├── health_bg.png
+├── playing_bg.jpg
+├── gameover_bg.jpg
+├── menu_vid.mp4
+├── gameover_vid.mp4
+├── backsound.wav
+├── gameover_bgm.wav
+└── aAsianNinja.ttf
 
----
-
-## Cara Menjalankan Program
-
+# 🚀 Cara Menjalankan Program
 ### 1. Install Dependencies
+Buka terminal atau command prompt Anda, lalu instal library Python yang dibutuhkan:
 
-```bash
-pip install opencv-python
-pip install numpy
-pip install pillow
-```
-
+Bash
+pip install opencv-python numpy pillow
 ### 2. Pastikan Webcam Aktif
+Program ini membaca input kamera secara real-time dari default device. Pastikan webcam terhubung dan tidak sedang digunakan oleh aplikasi lain.
 
-Program menggunakan webcam default:
+### 3. Jalankan Game
+Eksekusi file Python tersebut:
 
-```python
-cap = cv2.VideoCapture(0)
-```
-
-### 3. Jalankan Program
-
-```bash
+Bash
 python ProjectPCV.py
-```
+🎮 Cara Bermain
+Buka dan jalankan program.
 
----
+Klik level kesulitan pada layar Main Menu (Level 1, 2, atau 3).
 
-## Cara Bermain
+Akan muncul beberapa window pembantu (seperti Bareface dan Skin Detection Debug) dan jendela Game utama.
 
-1. Jalankan program.
-2. Pilih tingkat kesulitan.
-3. Letakkan tangan pada area deteksi.
-4. Gerakkan tangan untuk mengendalikan pedang.
-5. Hancurkan musuh yang jatuh.
-6. Kumpulkan skor sebanyak mungkin.
-7. Hindari membiarkan musuh melewati layar.
+Hadapkan area kulit (tangan) ke arah kamera.
 
----
+Gerakkan tangan Anda, pedang virtual akan mengikutinya.
 
-## Screenshot Game
+Ayunkan tangan secara cepat untuk mengenai musuh secara tebasan (Dapat bonus +3 Poin/Slash).
 
-### Menu Utama
+Hancurkan musuh yang berjatuhan sebelum melewati batas merah. Jika lolos, nyawa Anda berkurang.
 
-Gambar:
-
-```text
-<img width="807" height="644" alt="image" src="https://github.com/user-attachments/assets/9bd149df-4ff0-4bc0-8776-ddebe009b7f3" />
-
-```
-
-### Gameplay
-
-Gambar:
-
-```text
-screenshots/gameplay.png
-```
-
-### Game Over
-
-Gambar:
-
-```text
-screenshots/gameover.png
-```
-
----
-
-## Video Demonstrasi
-
-Link Video:
-
-```text
-https://youtu.be/
-```
-
----
-
+Permainan berakhir saat nyawa (❤️) habis.
+"""
