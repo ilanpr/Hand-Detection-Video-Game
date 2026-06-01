@@ -33,6 +33,10 @@ def play_bgm():
     if audio_enabled:
         winsound.PlaySound("backsound.wav", winsound.SND_ASYNC | winsound.SND_LOOP)
 
+def play_gameover_bgm():
+    if audio_enabled:
+        winsound.PlaySound("gameover_bgm.wav", winsound.SND_ASYNC | winsound.SND_LOOP)
+
 def stop_audio():
     if audio_enabled:
         winsound.PlaySound(None, winsound.SND_PURGE)
@@ -65,7 +69,8 @@ img_score_bg = cv2.imread('score_bg.png', cv2.IMREAD_UNCHANGED)
 img_health_bg = cv2.imread('health_bg.png', cv2.IMREAD_UNCHANGED)
 
 # --- LOAD VIDEO ---
-menu_cap = cv2.VideoCapture('menu_vid.mp4') 
+menu_cap = cv2.VideoCapture('menu_vid.mp4')
+gameover_cap = cv2.VideoCapture('gameover_vid.mp4')
 
 # ==========================================
 # FUNCTION 
@@ -86,7 +91,6 @@ def draw_custom_text(img, text, font_path, font_size, color_bgr, pos_x=0, pos_y=
     return cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
 
 def draw_fading_text(img, text, font_path, font_size, color_bgr, alpha, center_x=False, pos_y=0):
-    # Buat layer overlay untuk teks
     overlay = img.copy()
     img_rgb = cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB)
     pil_img = Image.fromarray(img_rgb)
@@ -95,13 +99,9 @@ def draw_fading_text(img, text, font_path, font_size, color_bgr, alpha, center_x
     font = ImageFont.truetype(font_path, font_size)
     bbox = draw.textbbox((0, 0), text, font=font)
     text_w = bbox[2] - bbox[0]
-    
     pos_x = (img.shape[1] - text_w) // 2 if center_x else 0
-    
-    # Gambar teks ke overlay
     draw.text((pos_x, pos_y), text, font=font, fill=color_bgr)
     
-    # Gabungkan dengan gambar asli dengan nilai alpha (fading)
     result = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
     return cv2.addWeighted(result, alpha, img, 1 - alpha, 0)
 
@@ -194,7 +194,8 @@ def mouse_click_handler(event, x, y, flags, param):
             game_state = "MENU"
             cv2.namedWindow("Game PCV")
             cv2.moveWindow("Game PCV", 40, 50) 
-            menu_cap.set(cv2.CAP_PROP_POS_FRAMES, 0) 
+            menu_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+            play_bgm() # Putar kembali BGM utama saat kembali ke menu
 
 cv2.namedWindow("Game PCV")
 cv2.moveWindow("Game PCV", 40, 50) 
@@ -240,11 +241,13 @@ while running:
         lower_skin = np.array([0, 20, 50], dtype=np.uint8) 
         upper_skin = np.array([25, 200, 255], dtype=np.uint8)
         mask = cv2.inRange(hsv, lower_skin, upper_skin)
+        
         def apply_morphology_improved(mask_img):
             kernel = np.ones((7, 7), np.uint8)
             cleaned = cv2.erode(mask_img, kernel, iterations=1)
             cleaned = cv2.dilate(cleaned, kernel, iterations=3) 
             return cleaned
+            
         mask_cleaned = apply_morphology_improved(mask)
         mask_below_line = mask_cleaned.copy()
         mask_below_line[0:garis_batas, :] = 0
@@ -254,6 +257,7 @@ while running:
         palm_center = None
         sword_rect = None
         current_tip = None
+        
         if contours:
             cnt = max(contours, key=cv2.contourArea)
             if cv2.contourArea(cnt) > 3000:
@@ -301,7 +305,7 @@ while running:
 
             if slash_hit:
                 score += 3
-                popup_timer = 15 # Durasi notifikasi
+                popup_timer = 15
                 last_hit_text = "+3 SLASH!"
                 enemy = [random.randint(100, WIDTH-100), 0, current_speed + random.randint(-1,2)]
             elif normal_hit:
@@ -314,6 +318,7 @@ while running:
             health -= 1
             if health <= 0:
                 game_state = "GAMEOVER"
+                play_gameover_bgm() # Mainkan BGM Game Over
                 try:
                     cv2.destroyWindow("Skin Detection Debug")
                     cv2.destroyWindow("Bareface (Kamera)")
@@ -326,7 +331,7 @@ while running:
             display_f = draw_fading_text(display_f, "SLASH!", NAMA_FILE_FONT, 120, (255, 255, 0), alpha, center_x=True, pos_y=180)
             display_f = draw_fading_text(display_f, "SLASH!", NAMA_FILE_FONT, 115, (255, 255, 255), alpha, center_x=True, pos_y=182)
             slash_timer -= 1
-            # Notifikasi Skor Berjalan
+            
         if popup_timer > 0:
             pos_y_notif = 120 - (15 - popup_timer) * 2
             display_f = draw_fading_text(display_f, last_hit_text, NAMA_FILE_FONT, 50, (0, 255, 0), popup_timer/15.0, center_x=True, pos_y=pos_y_notif)
@@ -360,6 +365,7 @@ while running:
         cv2.imshow("Game PCV", display_f)
         if key == ord('m'):
             game_state = "MENU"
+            play_bgm()
             cv2.namedWindow("Game PCV")
             cv2.moveWindow("Game PCV", 40, 50) 
             try:
@@ -369,13 +375,20 @@ while running:
         elif key == ord('q'): running = False
 
     elif game_state == "GAMEOVER":
-        go_frame = img_gameover.copy()
-        go_frame = draw_custom_text(go_frame, "GAME OVER", NAMA_FILE_FONT, 70, (0, 0, 255), center_x=True, pos_y=HEIGHT//2 - 80)
-        go_frame = draw_custom_text(go_frame, f"SKOR AKHIR: {score}", NAMA_FILE_FONT, 30, (255, 255, 255), center_x=True, pos_y=HEIGHT//2 -10)
+        go_ret, go_frame = gameover_cap.read()
+        if not go_ret:
+            gameover_cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+            _, go_frame = gameover_cap.read()
+        go_frame = cv2.resize(go_frame, (WIDTH, HEIGHT))
+        go_frame = draw_custom_text(go_frame, "GAME OVER", NAMA_FILE_FONT, 80, (255, 255, 255), center_x=True, pos_y=HEIGHT//2 - 95)
+        go_frame = draw_custom_text(go_frame, f"SKOR AKHIR: {score}", NAMA_FILE_FONT, 30, (100, 255, 255), center_x=True, pos_y=HEIGHT//2 -15)
+        go_frame = draw_custom_text(go_frame, "- KLIK UNTUK KEMBALI KE MENU -", NAMA_FILE_FONT, 25, (200, 200, 200), center_x=True, pos_y=HEIGHT//2 + 40)
+        
         cv2.imshow("Game PCV", go_frame)
         if key == ord('q'): running = False
 
 stop_audio()
 menu_cap.release() 
+gameover_cap.release()
 cap.release()
 cv2.destroyAllWindows()
