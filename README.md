@@ -18,10 +18,12 @@ Game ini memanfaatkan teknik deteksi warna kulit (*skin detection*) pada ruang w
 ![Main Menu](https://github.com/user-attachments/assets/9bd149df-4ff0-4bc0-8776-ddebe009b7f3)
 
 ### Gameplay
-![Gameplay](screenshots/gameplay.png)
+![Gameplay](<img width="1233" height="678" alt="image" src="https://github.com/user-attachments/assets/8434f8d9-12a4-408c-8876-72f81397610e" />
+)
 
 ### Game Over
-![Game Over](screenshots/gameover.png)
+![Game Over](<img width="801" height="636" alt="image" src="https://github.com/user-attachments/assets/6c7c40a5-86e8-421e-81d1-62c9dd80569b" />
+)
 
 ### Video Gameplay Keseluruhan
 [![Video Demonstrasi Game](https://img.youtube.com/vi/ID_VIDEO_YOUTUBE/maxresdefault.jpg)](https://youtu.be/ID_VIDEO_YOUTUBE)
