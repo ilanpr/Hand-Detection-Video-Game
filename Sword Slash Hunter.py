@@ -238,8 +238,8 @@ while running:
         display_f = img_playing_bg.copy()
         blurred = cv2.GaussianBlur(focus_frame, (11, 11), 0)
         hsv = cv2.cvtColor(focus_frame, cv2.COLOR_BGR2HSV)
-        lower_skin = np.array([0, 20, 50], dtype=np.uint8) 
-        upper_skin = np.array([25, 200, 255], dtype=np.uint8)
+        lower_skin = np.array([100, 100, 50], dtype=np.uint8) 
+        upper_skin = np.array([140, 255, 255], dtype=np.uint8)
         mask = cv2.inRange(hsv, lower_skin, upper_skin)
         
         def apply_morphology_improved(mask_img):
@@ -334,7 +334,7 @@ while running:
             
         if popup_timer > 0:
             pos_y_notif = 120 - (15 - popup_timer) * 2
-            display_f = draw_fading_text(display_f, last_hit_text, NAMA_FILE_FONT, 50, (0, 255, 0), popup_timer/15.0, center_x=True, pos_y=pos_y_notif)
+            display_f = draw_fading_text(display_f, last_hit_text, NAMA_FILE_FONT, 50, (100, 255, 255), popup_timer/15.0, center_x=True, pos_y=pos_y_notif)
             popup_timer -= 1
         else:
             is_slashing = False
