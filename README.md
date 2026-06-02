@@ -31,7 +31,7 @@ Game ini memanfaatkan teknik deteksi warna kulit (*skin detection*) pada ruang w
 
 ### Video Gameplay Keseluruhan
 <video width="600" controls>
-  <source src="./assets/your_video.mp4" type="video/mp4">
+  <source src="Tambahan/Gambar/Screen Recording 2026-06-02 091821.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 
