@@ -30,10 +30,11 @@ Game ini memanfaatkan teknik deteksi warna kulit (*skin detection*) pada ruang w
 </p>
 
 ### Video Gameplay Keseluruhan
-<video width="600" controls>
-  <source src="Tambahan/Gambar/Screen Recording 2026-06-02 091821.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+
+
+https://github.com/user-attachments/assets/22ea4552-b352-42b7-8d71-7a5047e3c588
+
+
 
 ## Fitur Utama
 1. **Menu Interaktif:** Terdapat tiga tingkat kesulitan (Level 1, Level 2, Level 3) dan tombol keluar. Kecepatan jatuh musuh bervariasi bergantung pada level yang dipilih.
