@@ -125,7 +125,8 @@ Eksekusi file Python tersebut:
 
 Bash
 python ProjectPCV.py
-🎮 Cara Bermain
+
+# 🎮 Cara Bermain
 Buka dan jalankan program.
 
 Klik level kesulitan pada layar Main Menu (Level 1, 2, atau 3).
