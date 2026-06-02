@@ -16,7 +16,7 @@ Game ini memanfaatkan teknik deteksi warna kulit (*skin detection*) pada ruang w
 
 ### Menu Utama
 <p align="center">
-  <img src="Tambahan/Gambar/mainmenu.png" width="600">
+  <img src="Tambahan/Gambar/Screenshot 2026-06-02 091139.png" width="600">
 </p>
 
 ### Gameplay
